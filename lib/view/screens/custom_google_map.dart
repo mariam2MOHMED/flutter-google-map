@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps/models/place_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 // class CustomGoogleMap extends StatefulWidget {
 //   const CustomGoogleMap({super.key});
@@ -43,13 +44,25 @@ class CustomGoogleMap extends StatefulWidget {
 class _CustomGoogleMapState extends State<CustomGoogleMap> {
   late CameraPosition initialCameraPosition;
   late GoogleMapController googleMapController;
+  Set<Marker>markers={};
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    initialCameraPosition=CameraPosition(target: LatLng(31.09, 41.99));
+    initialCameraPosition=CameraPosition(target:
+    LatLng(31.09,
+        41.99),
+        zoom: 14);
+    initMarker();
   }
-
+void initMarker(){
+    var myMarker=Marker(markerId: MarkerId("4"),
+    position: LatLng(30.3419503,31.1781714)
+    );
+    markers.add(myMarker);
+    setState(() {
+    });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,14 +70,15 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
       body:     Stack(
         children: [
           GoogleMap(
-          //  mapType: MapType.satellite,
+           mapType: MapType.normal,
+            markers: markers,
               onMapCreated: (controller){
                 googleMapController=controller;
-                initMapStyle();
+          initMarkers();
               },
-              cameraTargetBounds: CameraTargetBounds(LatLngBounds(
-                southwest: LatLng(31.08, 29.67),
-                northeast: LatLng(31.3, 30.1),)),
+              // cameraTargetBounds: CameraTargetBounds(LatLngBounds(
+              //   southwest: LatLng(31.08, 29.67),
+              //   northeast: LatLng(31.3, 30.1),)),
               initialCameraPosition: initialCameraPosition),
           ElevatedButton(onPressed: (){
             CameraPosition newLocation=CameraPosition(target:
@@ -83,11 +97,21 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
 
 
   }
+void initMarkers()async{
+  var myMarkers= places.map((place)=>Marker(
+    infoWindow: InfoWindow(   title: place.name),
+       position: place.latLng,
+       markerId: MarkerId(place.id))).toSet();
+  markers.addAll(myMarkers);
+  setState(() {
 
-  void initMapStyle() async{
-    var style=await DefaultAssetBundle.of(context).loadString("assets/map_style/map_style.json");
-  googleMapController.setMapStyle(style);
-  }
+  });
+}
+  // void initMapStyle() async{
+  //   var style=await DefaultAssetBundle.
+  //   of(context).loadString("assets/map_style/map_style.json");
+  // googleMapController.setMapStyle(style);
+  // }
 }
 
 
